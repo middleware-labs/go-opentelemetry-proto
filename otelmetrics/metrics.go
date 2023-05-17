@@ -16,7 +16,7 @@
 // versions:
 // 	protoc-gen-go v1.30.0
 // 	protoc        v3.21.2
-// source: opentelemetry/proto/metrics/v1/metrics.proto
+// source: otel/proto/metrics/v1/metrics.proto
 
 package otelmetrics
 
