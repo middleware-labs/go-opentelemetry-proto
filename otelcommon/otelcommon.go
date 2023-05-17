@@ -18,7 +18,7 @@
 // 	protoc        v3.21.2
 // source: opentelemetry/proto/common/v1/common.proto
 
-package common
+package otelcommon
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

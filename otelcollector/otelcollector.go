@@ -18,10 +18,10 @@
 // 	protoc        v3.21.2
 // source: opentelemetry/proto/collector/metrics/v1/metrics_service.proto
 
-package collector
+package otelcollector
 
 import (
-	v1 "github.com/middleware-labs/go-opentelemetry-proto/metrics"
+	v1 "github.com/middleware-labs/go-opentelemetry-proto/otelmetrics"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

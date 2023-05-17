@@ -18,10 +18,10 @@
 // 	protoc        v3.21.2
 // source: opentelemetry/proto/resource/v1/resource.proto
 
-package resource
+package otelresource
 
 import (
-	v1 "github.com/middleware-labs/go-opentelemetry-proto/common"
+	v1 "github.com/middleware-labs/go-opentelemetry-proto/otelcommon"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
