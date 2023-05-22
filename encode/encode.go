@@ -1,0 +1,70 @@
+package encode
+
+import (
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"go.opentelemetry.io/otel/sdk/resource"
+)
+
+type ExportMetricsServiceRequest struct {
+	// An array of ResourceMetrics.
+	// For data coming from a single resource this array will typically contain one
+	// element. Intermediary nodes (such as OpenTelemetry Collector) that receive
+	// data from multiple origins typically batch the data before forwarding further and
+	// in that case this array will contain multiple elements.
+	ResourceMetrics []*ResourceMetrics `protobuf:"bytes,1,rep,name=resource_metrics,json=resourceMetrics,proto3" json:"resource_metrics,omitempty"`
+}
+
+// ResourceMetrics is a collection of ScopeMetrics and the associated Resource
+// that created them.
+type ResourceMetrics struct {
+	// Resource represents the entity that collected the metrics.
+	Resource Attributes `protobuf:"name=resource,json=resource,proto3" json:"resource"`
+
+	// ScopeMetrics are the collection of metrics with unique Scopes.
+	ScopeMetrics []ScopeMetrics `protobuf:"name=scope_metrics,json=scope_metrics,proto3" json:"scope_metrics"`
+}
+
+type Attributes struct {
+	Attributes *resource.Resource `protobuf:"name=attributes,json=attributes,proto3" json:"attributes"`
+}
+
+// ScopeMetrics is a collection of Metrics Produces by a Meter.
+type ScopeMetrics struct {
+	// Scope is the Scope that the Meter was created with.
+	Scope instrumentation.Scope
+	// Metrics are a list of aggregations created by the Meter.
+	Metrics []Metrics
+}
+
+// Metrics is a collection of one or more aggregated timeseries from an Instrument.
+type Metrics struct {
+	// Name is the name of the Instrument that created this data.
+	Name string
+	// Description is the description of the Instrument, which can be used in documentation.
+	Description string
+	// Unit is the unit in which the Instrument reports.
+	Unit string
+	// Data is the aggregated data from an Instrument.
+	Summary *Summary `protobuf:"bytes,11,opt,name=summary,proto3,oneof" json:"summary,omitempty"`
+}
+
+type Summary struct {
+	// DataPoints are the individual aggregated measurements with unique
+	DataPoints []SummaryDataPoint `protobuf:"name=data_points,json=data_points,proto3" json:"data_points"`
+}
+
+type SummaryDataPoint struct {
+	Attributes        []attribute.KeyValue
+	StartTimeUnixNano uint64                             `protobuf:"fixed64,2,opt,name=start_time_unix_nano,json=startTimeUnixNano,proto3" json:"start_time_unix_nano,omitempty"`
+	TimeUnixNano      uint64                             `protobuf:"fixed64,3,opt,name=time_unix_nano,json=timeUnixNano,proto3" json:"time_unix_nano,omitempty"`
+	Count             uint64                             `protobuf:"fixed64,4,opt,name=count,proto3" json:"count,omitempty"`
+	Sum               float64                            `protobuf:"fixed64,5,opt,name=sum,proto3" json:"sum,omitempty"`
+	QuantileValues    []SummaryDataPoint_ValueAtQuantile `protobuf:"bytes,6,rep,name=quantiles,json=quantiles,proto3" json:"quantiles,omitempty"`
+	Flags             uint32                             `protobuf:"varint,8,opt,name=flags,proto3" json:"flags,omitempty"`
+}
+
+type SummaryDataPoint_ValueAtQuantile struct {
+	Quantile float64 `protobuf:"fixed64,1,opt,name=quantile,proto3" json:"quantile,omitempty"`
+	Value    float64 `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`
+}
