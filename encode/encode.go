@@ -47,6 +47,52 @@ type Metrics struct {
 	Unit string
 	// Data is the aggregated data from an Instrument.
 	Summary *Summary `protobuf:"bytes,11,opt,name=summary,proto3,oneof" json:"summary,omitempty"`
+
+	Sum *Sum `protobuf:"bytes,6,opt,name=sum,proto3,oneof" json:"sum,omitempty"`
+
+	Histogram *Histogram `protobuf:"bytes,8,opt,name=histogram,proto3,oneof" json:"histogram,omitempty"`
+}
+
+type Histogram struct {
+	DataPoints []HistogramDataPoint `protobuf:"bytes,1,rep,name=data_points,json=dataPoints,proto3" json:"data_points,omitempty"`
+
+	AggregationTemporality AggregationTemporality `protobuf:"varint,2,opt,name=aggregation_temporality,json=aggregationTemporality,proto3,enum=opentelemetry.proto.metrics.v1.AggregationTemporality" json:"aggregation_temporality,omitempty"`
+}
+
+type HistogramDataPoint struct {
+	Attributes []attribute.KeyValue
+
+	StartTimeUnixNano uint64 `protobuf:"fixed64,2,opt,name=start_time_unix_nano,json=startTimeUnixNano,proto3" json:"start_time_unix_nano,omitempty"`
+
+	TimeUnixNano uint64 `protobuf:"fixed64,3,opt,name=time_unix_nano,json=timeUnixNano,proto3" json:"time_unix_nano,omitempty"`
+
+	Count uint64 `protobuf:"fixed64,4,opt,name=count,proto3" json:"count,omitempty"`
+
+	Sum float64 `protobuf:"fixed64,5,opt,name=sum,proto3" json:"sum,omitempty"`
+
+	BucketCounts []uint64 `protobuf:"fixed64,6,rep,packed,name=bucket_counts,json=bucketCounts,proto3" json:"bucket_counts,omitempty"`
+
+	ExplicitBounds []float64 `protobuf:"fixed64,7,rep,packed,name=explicit_bounds,json=explicitBounds,proto3" json:"explicit_bounds,omitempty"`
+}
+
+type Sum struct {
+	DataPoints []DataPoint `protobuf:"bytes,1,rep,name=data_points,json=dataPoints,proto3" json:"data_points,omitempty"`
+
+	IsMonotonic bool `protobuf:"varint,3,opt,name=is_monotonic,json=isMonotonic,proto3" json:"is_monotonic,omitempty"`
+
+	AggregationTemporality AggregationTemporality `protobuf:"varint,2,opt,name=aggregation_temporality,json=aggregationTemporality,proto3,enum=opentelemetry.proto.metrics.v1.AggregationTemporality" json:"aggregation_temporality,omitempty"`
+}
+
+type AggregationTemporality int32
+
+type DataPoint struct {
+	StartTimeUnixNano uint64 `protobuf:"fixed64,2,opt,name=start_time_unix_nano,json=startTimeUnixNano,proto3" json:"start_time_unix_nano,omitempty"`
+
+	TimeUnixNano uint64 `protobuf:"fixed64,3,opt,name=time_unix_nano,json=timeUnixNano,proto3" json:"time_unix_nano,omitempty"`
+
+	Value int64 `protobuf:"fixed64,4,opt,name=value,proto3" json:"value,omitempty"`
+
+	Attributes []attribute.KeyValue
 }
 
 type Summary struct {
