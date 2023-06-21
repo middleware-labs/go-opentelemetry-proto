@@ -1,9 +1,17 @@
 package encode
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
+
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"go.opentelemetry.io/otel/sdk/resource"
+)
+
+var (
+	ErrValueNotIntOrFloat = errors.New("value is not of type int or float64")
 )
 
 type ExportMetricsServiceRequest struct {
@@ -51,6 +59,8 @@ type Metrics struct {
 	Sum *Sum `protobuf:"bytes,6,opt,name=sum,proto3,oneof" json:"sum,omitempty"`
 
 	Histogram *Histogram `protobuf:"bytes,8,opt,name=histogram,proto3,oneof" json:"histogram,omitempty"`
+
+	Gauge *Gauge `protobuf:"bytes,4,opt,name=gauge,proto3,oneof" json:"gauge,omitempty"`
 }
 
 type Histogram struct {
@@ -113,4 +123,45 @@ type SummaryDataPoint struct {
 type SummaryDataPoint_ValueAtQuantile struct {
 	Quantile float64 `protobuf:"fixed64,1,opt,name=quantile,proto3" json:"quantile,omitempty"`
 	Value    float64 `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+type NumberDataPoint struct {
+	Attributes        []attribute.KeyValue `protobuf:"bytes,7,rep,name=attributes,proto3" json:"attributes"`
+	StartTimeUnixNano uint64               `protobuf:"fixed64,2,opt,name=start_time_unix_nano,json=startTimeUnixNano,proto3" json:"start_time_unix_nano,omitempty"`
+	TimeUnixNano      uint64               `protobuf:"fixed64,3,opt,name=time_unix_nano,json=timeUnixNano,proto3" json:"time_unix_nano,omitempty"`
+	//Value             isNumberDataPoint_Value `protobuf_oneof:"value"`
+	Value    interface{} `json:"value,omitempty"`
+	AsDouble *float64    `json:"as_double,omitempty"`
+	AsInt    *int        `json:"as_int,omitempty"`
+	// (Optional) List of exemplars collected from
+	// measurements that were used to form the data point
+	// Exemplars []Exemplar `protobuf:"bytes,5,rep,name=exemplars,proto3" json:"exemplars"`
+	// Flags that apply to this specific data point.  See DataPointFlags
+	// for the available flags and their meaning.
+	// Flags uint32 `protobuf:"varint,8,opt,name=flags,proto3" json:"flags,omitempty"`
+}
+
+type Gauge struct {
+	DataPoints []*NumberDataPoint `protobuf:"bytes,1,rep,name=data_points,json=dataPoints,proto3" json:"data_points,omitempty"`
+}
+
+func (n *NumberDataPoint) SetValue(i interface{}) error {
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Int:
+		fmt.Println("int")
+		v, ok := i.(int)
+		if !ok {
+			return ErrValueNotIntOrFloat
+		}
+
+		n.AsInt = &v
+	case reflect.Float64:
+		v, ok := i.(float64)
+		if !ok {
+			return ErrValueNotIntOrFloat
+		}
+
+		n.AsDouble = &v
+	}
+	return nil
 }
